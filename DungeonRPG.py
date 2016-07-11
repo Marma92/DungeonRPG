@@ -60,14 +60,14 @@ def fight(data):
         data["hp"] = data["hp"]-random.randint(5,10)
     elif de >= 2:
         data["hp"] = data["hp"]-random.randint(1,5)
-        
-        
+
+
 #will return if a deplacement is allowed or not
 def direction_allowed(lab, pos_col, pos_line, data):
     #compute labyrinth size:
     n_cols  = len(lab[0])
     n_lines = len(lab)
-    #simply check if the choosen direction won't conduct character out 
+    #simply check if the choosen direction won't conduct character out
     if pos_line < 0 or pos_col < 0 or pos_line > (n_lines - 1) or pos_col > (n_cols -1):
         return None
     elif [pos_line][pos_col] == "0":
@@ -87,7 +87,10 @@ def direction_allowed(lab, pos_col, pos_line, data):
         return None
     else:
         return[pos_col, pos_line]
-            
+
+
+
+
 #all in the title
 #def display_labyrinth_borders(size):
 #    print("+{}+".format("-" * (size - 2)))
@@ -96,7 +99,8 @@ def direction_allowed(lab, pos_col, pos_line, data):
 #    print("+{}+".format("-" * (size - 2)))
 
 #player's direction choice
-def player_choice(lab, char_position):
+def player_choice(lab, char_position, data):
+    move = None
     choice = input ("Votre déplacement (Haut/Bas/Droite/Gauche/Quitter) ? ")
     if choice == "H" or choice == "Haut" or choice == "haut":
         move = direction_allowed(lab, char_position[0], char_position[1] -1)
@@ -110,9 +114,23 @@ def player_choice(lab, char_position):
         exit(0)
     if move == None:
         print("Deplacement impossible")
+        input("Appuyez sur entrée pour continuer")
     else:
         char_position[0] = move[0]
         char_position[1] = move[1]
-        
-        
 
+
+#main game loop
+def game(level, data, char, char_position, treasure):
+    while True:
+        clear_screen()
+        display_labyrinth(level, char, char_position, treasure)
+        score_bar(data)
+        if data["hp"] <= 0:
+            print("YOU LOSE...")
+            exit(0)
+        player_choice(level, char_position, data)
+        if char_position == [-1, -1]:
+            print("You passed this level")
+            input("press enter <Return> to continue")
+            break
