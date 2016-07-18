@@ -27,7 +27,7 @@ def display_labyrinth(lab, character, char_position, treasure):
         for i in range(1, 4):
             line = line.replace(str(i), treasure)
         if n_line == char_position[1]:
-            print(line[0:char_position[0]] + char + line[char_position[0]] + 1:])
+            print(line[0:char_position[0]] + char + line[char_position[0] + 1:])
         else:
             print(line)
         n_line += 1
