@@ -21,7 +21,7 @@ def score_bar(data):
     print("HP: (:2d)   GC: (:4d)  Level : (:3d)".format(data["hp"], data["gc"], data["level"]))
 
 #display in-labyrinth lines
-def display_labyrinth(lab, character, char_position, treasure):
+def display_labyrinth(lab, char, char_position, treasure):
     n_line = 0
     for line in lab:
         for i in range(1, 4):
