@@ -70,7 +70,7 @@ def direction_allowed(lab, pos_col, pos_line, data):
     #simply check if the choosen direction won't conduct character out
     if pos_line < 0 or pos_col < 0 or pos_line > (n_lines - 1) or pos_col > (n_cols -1):
         return None
-    elif [pos_line][pos_col] == "0":
+    elif [pos_line][pos_col] == "O":
         #seems bravely victorious, damn GG son!
         return[-1, -1]
     elif lab[pos_line][pos_col] == "1" or lab[pos_line][pos_col] == "2":
@@ -89,29 +89,22 @@ def direction_allowed(lab, pos_col, pos_line, data):
         return[pos_col, pos_line]
 
 
-
-
-#all in the title
-#def display_labyrinth_borders(size):
-#    print("+{}+".format("-" * (size - 2)))
-#    for i in range(size-2):
-#        print("|{}|".format(" " * (size - 2)))
-#    print("+{}+".format("-" * (size - 2)))
-
 #player's direction choice
 def player_choice(lab, char_position, data):
     move = None
     choice = input ("Votre déplacement (Haut/Bas/Droite/Gauche/Quitter) ? ")
-    if choice == "H" or choice == "Haut" or choice == "haut":
-        move = direction_allowed(lab, char_position[0], char_position[1] -1)
-    elif choice == "B" or choice == "Bas" or choice == "bas":
-        move = direction_allowed(lab, char_position[0], char_position[1] +1)
-    elif choice == "D" or choice == "Droite" or choice == "droite":
-        move = direction_allowed(lab, char_position[0] + 1, char_position[1])
-    elif choice == "G" or choice == "Gauche" or choice == "gauche":
-        move = direction_allowed(lab, char_position[0] - 1, char_position[1])
-    elif choice == "Q" or choice == "Quitter" or choice == "quitter":
+    if choice == "H" or choice == "h" or choice == "Haut" or choice == "haut":
+        move = direction_allowed(lab, char_position[0], char_position[1] -1, data)
+    elif choice == "B" or choice == "b" or choice == "Bas" or choice == "bas":
+        move = direction_allowed(lab, char_position[0], char_position[1] +1, data)
+    elif choice == "D" or choice == "d" or choice == "Droite" or choice == "droite":
+        move = direction_allowed(lab, char_position[0] + 1, char_position[1], data)
+    elif choice == "G" or choice == "g" or choice == "Gauche" or choice == "gauche":
+        move = direction_allowed(lab, char_position[0] - 1, char_position[1], data)
+    elif choice == "Q" or choice == "q" or choice == "Quitter" or choice == "quitter":
         exit(0)
+    else :
+        print ("Choix invalide !")
     if move == None:
         print("Deplacement impossible")
         input("Appuyez sur entrée pour continuer")
