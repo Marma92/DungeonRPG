@@ -70,15 +70,15 @@ def direction_allowed(lab, pos_col, pos_line, data):
     #simply check if the choosen direction won't conduct character out
     if pos_line < 0 or pos_col < 0 or pos_line > (n_lines - 1) or pos_col > (n_cols -1):
         return None
-    elif [pos_line][pos_col] == "O":
+    elif lab[pos_line][pos_col] == "O":
         #seems bravely victorious, damn GG son!
-        return[-1, -1]
+        return [-1, -1]
     elif lab[pos_line][pos_col] == "1" or lab[pos_line][pos_col] == "2":
         #discover a treasure
         treasure_discovery(lab[pos_line][pos_col], data)
         lab[pos_line] = lab[pos_line][:pos_col] + " " + lab[pos_line][pos_col + 1:]
         return[pos_col, pos_line]
-    elif [pos_line][pos_col] == "$":
+    elif lab[pos_line][pos_col] == "$":
         #meets a naughty villain
         fight(data)
         lab[pos_line] = lab[pos_line][:pos_col] + " " + lab[pos_line][pos_col + 1:]
