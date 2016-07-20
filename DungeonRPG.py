@@ -48,9 +48,9 @@ def load_labyrinth(filename):
     return data
 
 #Score bar displaying
-def score_bar(data):
+def score_bar(data, win, coloration):
     bar = "HP: {:2d}   GC: {:4d}  Level : {:3d}"
-    win.addstr(21, 1, bar.format(data["hp"], data[gc], data["level"]), color("BLUE", coloration))
+    win.addstr(23, 1, bar.format(data["hp"], data["gc"], data["level"]), color("BLUE", coloration))
 
 #display in-labyrinth lines
 def display_labyrinth(lab, char, char_position, treasure, win, coloration):
