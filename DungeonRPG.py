@@ -1,6 +1,37 @@
-import sys
-import os
 import random
+import curses
+
+#curses initialization. Permits to configure the "graphic" interface
+def init_curses(lines, cols, pos):
+    curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    curses.curs_set(0)
+
+    window = curses.newwin(lines, cols, pos[0], pos[1])
+    window.border(0)
+    window.keypad(1)
+    return window
+
+#restore graphic parameters
+def close_curses():
+    curses.echo()
+    curses.nocbreak()
+    curses.curs_set(1)
+    curses.endwin()
+
+#initialize coloration, return a list containing the colors
+def init_colors():
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_BLUE)
+    return["RED", "GREEN", "BLUE"]
+
+#color picker, return curses color code
+def color(code, l_color):
+    return curses.color_pair(l_color.index(code) + 1)
+
 
 #Load labyrinth file
 def load_labyrinth(filename):
@@ -18,18 +49,21 @@ def load_labyrinth(filename):
 
 #Score bar displaying
 def score_bar(data):
-    print("HP: {:2d}   GC: {:4d}  Level : {:3d}".format(data["hp"], data["gc"], data["level"]))
+    bar = "HP: {:2d}   GC: {:4d}  Level : {:3d}"
+    win.addstr(21, 1, bar.format(data["hp"], data[gc], data["level"]), color("BLUE", coloration))
 
 #display in-labyrinth lines
-def display_labyrinth(lab, char, char_position, treasure):
+def display_labyrinth(lab, char, char_position, treasure, win, coloration):
     n_line = 0
     for line in lab:
         for i in range(1, 4):
             line = line.replace(str(i), treasure)
         if n_line == char_position[1]:
-            print(line[0:char_position[0]] + char + line[char_position[0] + 1:])
+            win.addstr(n_line +1, 10, line[0: char_position[0]] + char + line[char_position[0] + 1:])
+            #coloring our character
+            win.addstr(n_line + 1, 10 + char_position[0], char, color("RED", coloration))
         else:
-            print(line)
+            win.addstr(n_line + 1, 10, line)
         n_line += 1
 
 #clear console screen
@@ -90,40 +124,39 @@ def direction_allowed(lab, pos_col, pos_line, data):
 
 
 #player's direction choice
-def player_choice(lab, char_position, data):
+def player_choice(lab, char_position, data, win):
     move = None
-    choice = input ("Votre déplacement (Haut/Bas/Droite/Gauche/Quitter) ? ")
-    if choice == "H" or choice == "h" or choice == "Haut" or choice == "haut":
-        move = direction_allowed(lab, char_position[0], char_position[1] -1, data)
-    elif choice == "B" or choice == "b" or choice == "Bas" or choice == "bas":
-        move = direction_allowed(lab, char_position[0], char_position[1] +1, data)
-    elif choice == "D" or choice == "d" or choice == "Droite" or choice == "droite":
-        move = direction_allowed(lab, char_position[0] + 1, char_position[1], data)
-    elif choice == "G" or choice == "g" or choice == "Gauche" or choice == "gauche":
+    choice = win.getch()
+    if choice == curses.KEY_UP:
+        move = direction_allowed(lab, char_position[0], char_position[1] - 1, data)
+    elif choice == curses.KEY_DOWN:
+        move = direction_allowed(lab, char_position[0], char_position[1] + 1, data)
+    elif choice == curses.KEY_LEFT:
         move = direction_allowed(lab, char_position[0] - 1, char_position[1], data)
-    elif choice == "Q" or choice == "q" or choice == "Quitter" or choice == "quitter":
+    elif choice == curses.KEY_RIGHT:
+        move = direction_allowed(lab, char_position[0] + 1, char_position[1], data)
+    elif choice == 27: #asci code for leave key
+        close_curses()
         exit(0)
-    else :
-        print ("Choix invalide !")
-    if move == None:
-        print("Deplacement impossible")
-        input("Appuyez sur entrée pour continuer")
-    else:
+    if move != None:
         char_position[0] = move[0]
         char_position[1] = move[1]
 
-
 #main game loop
-def game(level, data, char, char_position, treasure):
+def game(level, data, char, char_position, treasure, win, coloration):
     while True:
-        clear_screen()
-        display_labyrinth(level, char, char_position, treasure)
-        score_bar(data)
+        display_labyrinth(level, char, char_position, treasure, win, coloration)
+        score_bar(data, win, coloration)
         if data["hp"] <= 0:
-            print("YOU LOSE...")
+            win.addstr(22, 1, "YOU DIED !", color("RED", coloration))
+            win.getch()
+            colse_curses()
             exit(0)
-        player_choice(level, char_position, data)
+        player_choice(level, char_position, data, win)
         if char_position == [-1, -1]:
-            print("You passed this level")
-            input("press enter <Return> to continue")
+            win.addstr(22, 1, "You passed this level! ", color("RED", coloration))
+            win.addstr(23, 1, "Press a key to continue", color("RED", coloration))
+            win.getch()
+            win.addstr(1, 20, " ", *50)
+            win.addstr(1, 21, " ", *50)
             break
