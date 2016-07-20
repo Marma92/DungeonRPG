@@ -18,7 +18,7 @@ def load_labyrinth(filename):
 
 #Score bar displaying
 def score_bar(data):
-    print("HP: (:2d)   GC: (:4d)  Level : (:3d)".format(data["hp"], data["gc"], data["level"]))
+    print("HP: {:2d}   GC: {:4d}  Level : {:3d}".format(data["hp"], data["gc"], data["level"]))
 
 #display in-labyrinth lines
 def display_labyrinth(lab, char, char_position, treasure):
