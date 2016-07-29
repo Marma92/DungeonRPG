@@ -1,37 +1,5 @@
 import random
-import curses
-
-#curses initialization. Permits to configure the "graphic" interface
-def init_curses(lines, cols, pos):
-    curses.initscr()
-    curses.noecho()
-    curses.cbreak()
-    curses.curs_set(0)
-
-    window = curses.newwin(lines, cols, pos[0], pos[1])
-    window.border(0)
-    window.keypad(1)
-    return window
-
-#restore graphic parameters
-def close_curses():
-    curses.echo()
-    curses.nocbreak()
-    curses.curs_set(1)
-    curses.endwin()
-
-#initialize coloration, return a list containing the colors
-def init_colors():
-    curses.start_color()
-    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_BLUE)
-    return["RED", "GREEN", "BLUE"]
-
-#color picker, return curses color code
-def color(code, l_color):
-    return curses.color_pair(l_color.index(code) + 1)
-
+from tkinter import *
 
 #Load labyrinth file
 def load_labyrinth(filename):
@@ -53,27 +21,88 @@ def score_bar(data, win, coloration):
     win.addstr(23, 1, bar.format(data["hp"], data["gc"], data["level"]), color("BLUE", coloration))
 
 #display in-labyrinth lines
-def display_labyrinth(lab, char, char_position, treasure, win, coloration):
+def display_labyrinth(lab, window, size_sprite, char_position):
+    can = Canvas(window, width = 900, height = 720)
+
+    photo_wall      = PhotoImage(file = "sprites/wall.png")
+    photo_treasure  = PhotoImage(file = "sprites/chest.gif")
+    photo_enemy     = PhotoImage(file = "sprites/enemy.png")
+    photo_exit      = PhotoImage(file = "sprites/exit.png")
+    photo_hero      = PhotoImage(file = "sprites/hero.gif")
+
     n_line = 0
     for line in lab:
-        for i in range(1, 4):
-            line = line.replace(str(i), treasure)
-        if n_line == char_position[1]:
-            win.addstr(n_line +1, 10, line[0: char_position[0]] + char + line[char_position[0] + 1:])
-            #coloring our character
-            win.addstr(n_line + 1, 10 + char_position[0], char, color("RED", coloration))
-        else:
-            win.addstr(n_line + 1, 10, line)
+        n_col = 0
+        for car in line:
+            #Walls
+            if car == "+" or car == "-" or car == "|":
+                can.create_image(n_col + n_col * size_sprite, n_line + n_line *size_sprite, anchor = NW, image = photo_wall)
+            #treasures
+            if car == "1" or car == "2":
+                can.create_image(n_col + n_col * size_sprite, n_line + n_line *size_sprite, anchor = NW, image = photo_treasure)
+            #fees
+            if car == "$":
+                can.create_image(n_col + n_col * size_sprite, n_line + n_line *size_sprite, anchor = NW, image = photo_enemy)
+            #exit
+            if car == "O":
+                can.create_image(n_col + n_col * size_sprite, n_line + n_line *size_sprite, anchor = NW, image = photo_exit)
+
+            n_col += 1
         n_line += 1
 
-#clear console screen
-def clear_screen():
-    if sys.platform.startswith("win"):
-        #if windows
-        os.system("cls")
-    else :
-        #if unix based:
-        os.system("clear")
+    #hero's displaying
+    sprite_hero = can.create_image(char_position[0] + char_position[0] * size_sprite, char_position[1] + char_position[1] * size_sprite, anchor = NW, image = photo_hero)
+
+    can.pack()
+    return (can, sprite_hero, {
+    "hero"      : photo_hero,
+    "wall"      : photo_wall,
+    "treasure"  : photo_treasure,
+    "enemy"     : photo_enemy,
+    "exit"      : photo_exit })
+
+
+#keys behavior
+def init_keys(window, canvas, lab, char_position, character):
+    window.bind("<Right>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "right", 1, pos, char))
+    window.bind("<Left>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "left", 1, pos, char))
+    window.bind("<Up>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "up", 1, pos, char))
+    window.bind("<Down>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "down", 1, pos, char))
+
+    window.bind("<Escape>", lambda event, win = window : destroy(event, win))
+
+#deplacement function
+def move(event, can, dep, lab, char_position, character):
+    #computering lab size
+    n_cols   = len(lab[0])
+    n_lines  = len(lab)
+    pos_col, pos_line,  = [char_position[0], char_position[1]]
+
+    #deplacement
+    if dep == "right":
+        pos_col += 1
+    elif dep == "left":
+        pos_col -= 1
+    elif dep == "up":
+        pos_line -= 1
+    elif dep == "down":
+        pos_line += 1
+
+    #valid position test
+    if pos_line < 0 or pos_col < 0 or pos_line > (n_lines - 1) or pos_col > (n_cols - 1):
+        return None
+
+    #if the move is valid, let make it wavailable through the char_position list
+    if lab[pos_line][pos_col] == " ":
+        can.coords(character, pos_col + pos_col * 30, pos_line + pos_line * 30)
+        del char_position[0]
+        del char_position[0]
+        char_position.append(pos_col)
+        char_position.append(pos_line)
+
+#closing graphic window
+def destroy(event, window):
+    window.destroy()
 
 #If our character meets a treasure
 def treasure_discovery(category, data):
@@ -96,56 +125,10 @@ def fight(data):
         data["hp"] = data["hp"]-random.randint(1,5)
 
 
-#will return if a deplacement is allowed or not
-def direction_allowed(lab, pos_col, pos_line, data):
-    #compute labyrinth size:
-    n_cols  = len(lab[0])
-    n_lines = len(lab)
-    #simply check if the choosen direction won't conduct character out
-    if pos_line < 0 or pos_col < 0 or pos_line > (n_lines - 1) or pos_col > (n_cols -1):
-        return None
-    elif lab[pos_line][pos_col] == "O":
-        #seems bravely victorious, damn GG son!
-        return [-1, -1]
-    elif lab[pos_line][pos_col] == "1" or lab[pos_line][pos_col] == "2":
-        #discover a treasure
-        treasure_discovery(lab[pos_line][pos_col], data)
-        lab[pos_line] = lab[pos_line][:pos_col] + " " + lab[pos_line][pos_col + 1:]
-        return[pos_col, pos_line]
-    elif lab[pos_line][pos_col] == "$":
-        #meets a naughty villain
-        fight(data)
-        lab[pos_line] = lab[pos_line][:pos_col] + " " + lab[pos_line][pos_col + 1:]
-        return [pos_col, pos_line]
-    elif lab[pos_line][pos_col] != " ":
-        return None
-    else:
-        return[pos_col, pos_line]
-
-
-#player's direction choice
-def player_choice(lab, char_position, data, win):
-    move = None
-    choice = win.getch()
-    if choice == curses.KEY_UP:
-        move = direction_allowed(lab, char_position[0], char_position[1] - 1, data)
-    elif choice == curses.KEY_DOWN:
-        move = direction_allowed(lab, char_position[0], char_position[1] + 1, data)
-    elif choice == curses.KEY_LEFT:
-        move = direction_allowed(lab, char_position[0] - 1, char_position[1], data)
-    elif choice == curses.KEY_RIGHT:
-        move = direction_allowed(lab, char_position[0] + 1, char_position[1], data)
-    elif choice == 27: #asci code for leave key
-        close_curses()
-        exit(0)
-    if move != None:
-        char_position[0] = move[0]
-        char_position[1] = move[1]
-
 #main game loop
-def game(level, data, char, char_position, treasure, win, coloration):
+def game(level, data, char_position, window):
     while True:
-        display_labyrinth(level, char, char_position, treasure, win, coloration)
+        display_labyrinth(lab, window, size_sprite, char_position)
         score_bar(data, win, coloration)
         if data["hp"] <= 0:
             win.addstr(22, 1, "YOU DIED !", color("RED", coloration))

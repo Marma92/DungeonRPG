@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import DungeonRPG
+from tkinter import *
 
 if __name__ == "__main__":
     #character initialization:
@@ -10,19 +11,19 @@ if __name__ == "__main__":
     data = {
         "gc"    :   0,
         "hp"    :   25,
-        "level" :   None
+        "level" :   1
     }
 
+    size_sprite = 31
+
     #graphic environment initialization
-    win = DungeonRPG.init_curses(25, 41, (0, 0))
-    #colors initialization
-    coloration = DungeonRPG.init_colors()
+    window = Tk()
+    window.title("DungeonRPG Game")
 
     #game launch
-    for n_level in range(1, n_levels_total + 1):
-        level = DungeonRPG.load_labyrinth("level_" + str(n_level))
-        data["level"] = n_level
-        DungeonRPG.game(level, data, char, char_position, treasure, win, coloration)
-    win.addstr(1, 22, " YOU WON ! ", DungeonRPG.color("RED", coloration))
-    win.getch()
-    DungeonRPG.close_curses()
+    level = DungeonRPG.load_labyrinth("level_1")
+    (canvas, sprite_hero, photos) = DungeonRPG.display_labyrinth(level, window, size_sprite, char_position)
+    DungeonRPG.init_keys(window, canvas, level, char_position, sprite_hero)
+
+    #events loop
+    window.mainloop()
