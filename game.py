@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     #game launch
     level = DungeonRPG.load_labyrinth("level_1")
-    (canvas, sprite_hero, photos) = DungeonRPG.display_labyrinth(level, window, size_sprite, char_position)
+    (canvas, sprite_hero, photos) = DungeonRPG.display_labyrinth(level, window, size_sprite, char_position, data)
     DungeonRPG.init_keys(window, canvas, level, char_position, sprite_hero, data)
 
     #events loop

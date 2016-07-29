@@ -16,12 +16,12 @@ def load_labyrinth(filename):
     return data
 
 #Score bar displaying
-def score_bar(data, win, coloration):
+def score_bar(data, can, n_lines, size_sprite):
     bar = "HP: {:2d}   GC: {:4d}  Level : {:3d}"
-    win.addstr(23, 1, bar.format(data["hp"], data["gc"], data["level"]), color("BLUE", coloration))
+    can.create_text( 4*size_sprite, n_lines+1*size_sprite , text= bar.format(data["hp"], data["gc"], data["level"]))
 
 #display in-labyrinth lines
-def display_labyrinth(lab, window, size_sprite, char_position):
+def display_labyrinth(lab, window, size_sprite, char_position, data):
     can = Canvas(window, width = 900, height = 720)
 
     photo_wall      = PhotoImage(file = "sprites/wall.png")
@@ -52,6 +52,9 @@ def display_labyrinth(lab, window, size_sprite, char_position):
 
     #hero's displaying
     sprite_hero = can.create_image(char_position[0] + char_position[0] * size_sprite, char_position[1] + char_position[1] * size_sprite, anchor = NW, image = photo_hero)
+
+    #bar displaying
+    score_bar(data, can, len(lab), size_sprite)
 
     can.pack()
     return (can, sprite_hero, {
@@ -105,7 +108,13 @@ def move(event, can, dep, lab, char_position, character, data):
         del char_position[0]
         char_position.append(pos_col)
         char_position.append(pos_line)
-
+    elif lab[pos_line][pos_col] == "$":
+        fight(data)
+        treasure_discovery(lab[pos_line][pos_col], data)
+        del char_position[0]
+        del char_position[0]
+        char_position.append(pos_col)
+        char_position.append(pos_line)
 
 
 #closing graphic window
