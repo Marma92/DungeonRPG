@@ -63,16 +63,16 @@ def display_labyrinth(lab, window, size_sprite, char_position):
 
 
 #keys behavior
-def init_keys(window, canvas, lab, char_position, character):
-    window.bind("<Right>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "right", 1, pos, char))
-    window.bind("<Left>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "left", 1, pos, char))
-    window.bind("<Up>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "up", 1, pos, char))
-    window.bind("<Down>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "down", 1, pos, char))
+def init_keys(window, canvas, lab, char_position, character, data):
+    window.bind("<Right>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "right", l, pos, char, data))
+    window.bind("<Left>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "left", l, pos, char, data))
+    window.bind("<Up>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "up", l, pos, char, data))
+    window.bind("<Down>", lambda event, can = canvas, l = lab, pos = char_position, char = character: move(event, can, "down", l, pos, char, data))
 
     window.bind("<Escape>", lambda event, win = window : destroy(event, win))
 
 #deplacement function
-def move(event, can, dep, lab, char_position, character):
+def move(event, can, dep, lab, char_position, character, data):
     #computering lab size
     n_cols   = len(lab[0])
     n_lines  = len(lab)
@@ -92,13 +92,21 @@ def move(event, can, dep, lab, char_position, character):
     if pos_line < 0 or pos_col < 0 or pos_line > (n_lines - 1) or pos_col > (n_cols - 1):
         return None
 
-    #if the move is valid, let make it wavailable through the char_position list
+    #if the move is valid, let make it available through the char_position list
     if lab[pos_line][pos_col] == " ":
-        can.coords(character, pos_col + pos_col * 30, pos_line + pos_line * 30)
+        can.coords(character, pos_col + pos_col * 31, pos_line + pos_line * 31)
         del char_position[0]
         del char_position[0]
         char_position.append(pos_col)
         char_position.append(pos_line)
+    elif lab[pos_line][pos_col] == "1" or lab[pos_line][pos_col] == "2":
+        treasure_discovery(lab[pos_line][pos_col], data)
+        del char_position[0]
+        del char_position[0]
+        char_position.append(pos_col)
+        char_position.append(pos_line)
+
+
 
 #closing graphic window
 def destroy(event, window):
