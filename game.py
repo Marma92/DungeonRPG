@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import DungeonRPG
+import sys
 from tkinter import *
 
 if __name__ == "__main__":
@@ -24,6 +25,4 @@ if __name__ == "__main__":
     level = DungeonRPG.load_labyrinth("level_1")
     (canvas, sprite_hero, photos) = DungeonRPG.display_labyrinth(level, window, size_sprite, char_position, data)
     DungeonRPG.init_keys(window, canvas, level, char_position, sprite_hero, data)
-
-    #events loop
-    window.mainloop()
+    sys.exit()

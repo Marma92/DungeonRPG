@@ -18,11 +18,16 @@ def load_labyrinth(filename):
 #Score bar displaying
 def score_bar(data, can, n_lines, size_sprite):
     bar = "HP: {:2d}   GC: {:4d}  Level : {:3d}"
-    can.create_text( 4*size_sprite, n_lines+1*size_sprite , text= bar.format(data["hp"], data["gc"], data["level"]))
+    id  = can.create_text( 4*size_sprite, n_lines+1*size_sprite , text= bar.format(data["hp"], data["gc"], data["level"]))
+    data ["id_bar"] = id
+
+def score_bar_update(data, can):
+    bar = "HP: {:2d}   GC: {:4d}  Level : {:3d}"
+    can.itemconfigure(data["id_bar"], text = bar.format(data["hp"], data["gc"], data["level"]))
 
 #display in-labyrinth lines
 def display_labyrinth(lab, window, size_sprite, char_position, data):
-    can = Canvas(window, width = 900, height = 720)
+    can = Canvas(window, width = 900, height = 680)
 
     photo_wall      = PhotoImage(file = "sprites/wall.png")
     photo_treasure  = PhotoImage(file = "sprites/chest.gif")
@@ -102,27 +107,27 @@ def move(event, can, dep, lab, char_position, character, data):
         del char_position[0]
         char_position.append(pos_col)
         char_position.append(pos_line)
-    elif lab[pos_line][pos_col] == "1" or lab[pos_line][pos_col] == "2":
-        treasure_discovery(lab[pos_line][pos_col], data)
+    if lab[pos_line][pos_col] == "1" or lab[pos_line][pos_col] == "2":
+        treasure_discovery(lab[pos_line][pos_col], data, can)
         del char_position[0]
         del char_position[0]
         char_position.append(pos_col)
         char_position.append(pos_line)
     elif lab[pos_line][pos_col] == "$":
-        fight(data)
-        treasure_discovery(lab[pos_line][pos_col], data)
+        fight(data, can)
         del char_position[0]
         del char_position[0]
         char_position.append(pos_col)
         char_position.append(pos_line)
-
+    if lab[pos_line][pos_col] == "O":
+        win(can, data)
 
 #closing graphic window
 def destroy(event, window):
     window.destroy()
 
 #If our character meets a treasure
-def treasure_discovery(category, data):
+def treasure_discovery(category, data, can):
     #first shot of treasures:
     #two kinds of them:
     #- 1: between 1 and 20 golds
@@ -131,19 +136,25 @@ def treasure_discovery(category, data):
         data["gc"] = data["gc"]+ random.randint(1, 20)
     else :
         data["gc"] = data["gc"]+ random.randint(5, 30)
+    score_bar_update(data, can)
 
 
 #If our character meets a monster
-def fight(data):
+def fight(data, can):
     de = random.randint(1, 10)
     if de == 1:
         data["hp"] = data["hp"]-random.randint(5,10)
     elif de >= 2:
         data["hp"] = data["hp"]-random.randint(1,5)
+    score_bar_update(data, can)
+
+#the win
+def win(can, data):
+    can.itemconfigure(data["id_bar"], text = "YOU WON !!")
 
 
-#main game loop
-def game(level, data, char_position, window):
+#main game loop, useless atm
+"""def game(level, data, char_position, window):
     while True:
         display_labyrinth(lab, window, size_sprite, char_position)
         score_bar(data, win, coloration)
@@ -160,3 +171,4 @@ def game(level, data, char_position, window):
             win.addstr(1, 20, " ", *50)
             win.addstr(1, 21, " ", *50)
             break
+"""
