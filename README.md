@@ -2,7 +2,7 @@
 
 Requires Python 3
 
-###To play:###
+### To play: ###
 
 - Clone repository
 - Launch the command "py game.py"
