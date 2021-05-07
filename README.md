@@ -15,7 +15,8 @@ Requires Python 3
 
 ### TO DO:
 
-- Improving impact gesture
+- Improving impact management
+- Fix the levels manager
 - Floor sprite
 - Improving the generation algorithm
 - Adding a shop
