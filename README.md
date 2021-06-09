@@ -6,7 +6,7 @@ Requires Python 3
 
 - Clone repository
 - Launch the command "py game.py"
-- Build your own levels, naming them level_2, level_3 etc..
+- You can also build your own levels, by naming them level_2, level_3 etc..
 - Enjoy!
 
 ### Screenshot
